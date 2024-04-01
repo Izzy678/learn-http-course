@@ -1,25 +1,48 @@
 import { JSDOM } from "jsdom";
 import axios from "axios";
-export const crawlPage = async (currentUrl: string) => {
+
+export const crawlPage = async (BASEuRL: string, currentUrl: string, pages) => {
   try {
+    console.log("pages", pages);
     console.log("actively crawling the page", currentUrl);
+    const baseUrlObj = new URL(BASEuRL);
+    const currentUrlObj = new URL(currentUrl);
+
+    if (baseUrlObj.hostname !== currentUrlObj.hostname) {
+      return pages;
+    }
+
+    const normalizedCurrentUrl = normalizeUrl(currentUrl);
+    if (pages[normalizedCurrentUrl] > 0) {
+      pages[normalizedCurrentUrl]++;
+      return pages;
+    }
+    pages[normalizedCurrentUrl] = 1;
+
     const res = await axios.get(currentUrl);
     const contentType = res.headers["content-type"];
-    
+
     if (res.status > 399) {
       console.log(`error in fetching with status code:
       ${res.status} on page ${currentUrl}`);
+      return pages;
     }
-    if (!contentType.includes('text/html')) {
+    if (!contentType.includes("text/html")) {
       console.log(
         `non html response,content type:${contentType} on page ${currentUrl}`
       );
-      return ;
+      return pages;
     }
-    console.log(res.data);
+    const htmlBody = res.data;
+    const urls = getUrlsFromHtml(htmlBody, BASEuRL);
+    console.log(urls);
+    for (const nextUrl of urls) {
+      pages = await crawlPage(BASEuRL, nextUrl, pages);
+    }
   } catch (error) {
     console.log(`error fetching ${error.message} on page: ${currentUrl}`);
   }
+  return pages;
 };
 
 export const normalizeUrl = (urlParams: string) => {
