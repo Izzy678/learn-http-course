@@ -5,7 +5,7 @@ export const PrintReport = (pages: Object) => {
   for (const pages of sortedPages) {
     const urls = pages[0];
     const hits = pages[1];
-    console.log(`found ${hits}links to thispage:${urls}`);
+    console.log(`found ${hits} link(s) to thispage:${urls}`);
   }
   console.log("================================");
   console.log("END REPORT");
