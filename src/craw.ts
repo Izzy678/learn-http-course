@@ -3,7 +3,6 @@ import axios from "axios";
 
 export const crawlPage = async (BASEuRL: string, currentUrl: string, pages) => {
   try {
-    console.log("pages", pages);
     console.log("actively crawling the page", currentUrl);
     const baseUrlObj = new URL(BASEuRL);
     const currentUrlObj = new URL(currentUrl);
